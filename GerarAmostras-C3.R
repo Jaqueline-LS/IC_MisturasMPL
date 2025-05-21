@@ -178,7 +178,7 @@ tabela.n<-function(n)
   }
   curve(c2(x,d=4),from=-1,to=1, lwd=1,add=T)
   
-  legend("topright", legend=c("grupo 1","grupo 2"), bty = "n",lwd = 3, col=cores[1:2], cex=0.5 )
+  legend("topright", legend=c("Grupo 1","Grupo 2"), bty = "n",lwd = 3, col=cores[1:2], cex=1)
   
   return(tabela)
 }
@@ -216,7 +216,7 @@ format_scientific_latex <- function(x) {
 # Aplicar a formatação a todos os valores numéricos da tabela
 tabela.final[]<- lapply(tabela.final, format_scientific_latex)
 
-tabela_latex <- knitr::kable(tabela.final, caption = paste0("C1 - Bem separados"), format = "latex", escape = FALSE, booktabs=T) %>%
+tabela_latex <- knitr::kable(tabela.final, caption = paste0("C3 - Pouco separados"), format = "latex", escape = FALSE, booktabs=T) %>%
   add_header_above(c(" " = 2, "n=300" = 3,"n=500" = 3,"n=1000" = 3,"n=2000"=3)) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 
