@@ -6,70 +6,52 @@ library("kableExtra")
 source("funcoes/funcoes.R")
 source("funcoes/funcoesMisturas.R")
 source("funcoes/GerarAmostras_geral.R")
-
-#cores<-c("#BAF3DE","#FF9B95","#C9E69E","#FFC29A")
-cores<-c("#1d91c0","#ff5858")
-
+cores<-c("#BAF3DE","#C9E69E","#FF9B95","#FFC29A")
+cores2<-c("#1d91c0","#ff5858")
 par<-par(pch=19)
 
 
-M<-1
+M<-500
 g<-2
 
-#Cenario 2
+# Cenario 1
 # pii<-c(0.35, 0.65)
 # 
-# beta.verd<-list(c(3,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2_2_"
-# nome.plot<-"c2_2_"
+# beta.verd<-list(c(8,4,6),c(2,3,-5))
 
-# # # Cenario 2.1
-# 
-# pii<-c(0.47, 0.53)
-# 
-# beta.verd<-list(c(3,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2.1_2_"
-# nome.plot<-"c2.1_2_"
+# # # Cenario 1.1
+pii<-c(0.35, 0.65)
+
+beta.verd<-list(c(8,4,6),c(2,3,-5))
 
 
-# #Cenario 3.1
-# beta.verd<-list(c(4,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2.2_2_"
-# nome.plot<-"c2.2_2_"
-
-
-# Cenario 3.2
-pii<-c(0.35,0.65)
-
-beta.verd<-list(c(4,4,6),c(2,3,-5))
-nome.amostra<-"Amostras/c3.2_2_"
-nome.plot<-"c3.2_2_"
-
-
-#------------------------------
-sigma2.verd<-list(1,1)
+sigma2.verd<-list(2,1)
 
 
 arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2.verd[[1]],intercepto=T),
                  g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
-n=500
-
-amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos) 
+n=300
 alfas<-c(0.1,0.1)
-theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
+amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
+theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
+par(mfrow=c(3,1), mar=c(2,1,1,1))
 
-VerificarEstimacao(amostra, arg.grupos, theta, tipo="Pouco separados")
-verificarGeração(amostra, arg.grupos,tipo="Pouco separados")
+VerificarEstimacao(amostra,arg.grupos, theta, tipo="Bem separados")
+verificarGeração(amostra,arg.grupos, tipo="Bem separados")
 #---------------------------------------------------
 alfas<-c(0.1,0.1)
-
 sizes<-c(300,500,1000,2000)
-gera.amostras(5000)
-#sapply(sizes,FUN = gera.amostras)
+nome.amostra<-"Amostras/svm_1"
+nome.plot<-"svm_1"
+
+gera.amostras(300)
+sapply(sizes,FUN = gera.amostras)
 
 source("funcoes/graficos_MSE.R")
+
+
 
 jpeg(file=paste0("Resultados/", nome.plot,"curvas.jpg"), width = 1500, height = 800, quality = 100, pointsize = 20)
 

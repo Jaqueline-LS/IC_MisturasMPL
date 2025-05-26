@@ -6,22 +6,24 @@ library("kableExtra")
 source("funcoes/funcoes.R")
 source("funcoes/funcoesMisturas.R")
 source("funcoes/GerarAmostras_geral.R")
-
-#cores<-c("#BAF3DE","#FF9B95","#C9E69E","#FFC29A")
-cores<-c("#1d91c0","#ff5858")
-
+cores<-c("#BAF3DE","#C9E69E","#FF9B95","#FFC29A")
+cores2<-c("#1d91c0","#ff5858")
 par<-par(pch=19)
 
 
-M<-1
+M<-500
 g<-2
 
 #Cenario 2
-# pii<-c(0.35, 0.65)
-# 
-# beta.verd<-list(c(3,4,6),c(2,3,-5))
+pii<-c(0.35, 0.65)
+
+beta.verd<-list(c(3,4,6),c(2,3,-5))
 # nome.amostra<-"Amostras/c2_2_"
 # nome.plot<-"c2_2_"
+
+nome.amostra<-"Amostras/svm_2"
+nome.plot<-"svm_2"
+
 
 # # # Cenario 2.1
 # 
@@ -38,12 +40,6 @@ g<-2
 # nome.plot<-"c2.2_2_"
 
 
-# Cenario 3.2
-pii<-c(0.35,0.65)
-
-beta.verd<-list(c(4,4,6),c(2,3,-5))
-nome.amostra<-"Amostras/c3.2_2_"
-nome.plot<-"c3.2_2_"
 
 
 #------------------------------
@@ -54,19 +50,19 @@ arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sig
                  g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
-n=500
-
-amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos) 
+n=300
 alfas<-c(0.1,0.1)
-theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
+amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
+theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
 
-VerificarEstimacao(amostra, arg.grupos, theta, tipo="Pouco separados")
-verificarGeração(amostra, arg.grupos,tipo="Pouco separados")
+VerificarEstimacao(amostra,arg.grupos, theta, tipo="Mal separados")
+verificarGeração(amostra,arg.grupos,tipo="Mal separados")
 #---------------------------------------------------
 alfas<-c(0.1,0.1)
 
 sizes<-c(300,500,1000,2000)
-gera.amostras(5000)
+
+gera.amostras(300)
 #sapply(sizes,FUN = gera.amostras)
 
 source("funcoes/graficos_MSE.R")
@@ -104,7 +100,7 @@ format_scientific_latex <- function(x) {
 # Aplicar a formatação a todos os valores numéricos da tabela
 tabela.final[]<- lapply(tabela.final, format_scientific_latex)
 
-tabela_latex <- knitr::kable(tabela.final, caption = paste0("C3 - Pouco separados"), format = "latex", escape = FALSE, booktabs=T) %>%
+tabela_latex <- knitr::kable(tabela.final, caption = paste0("C1 - Bem separados"), format = "latex", escape = FALSE, booktabs=T) %>%
   add_header_above(c(" " = 2, "n=300" = 3,"n=500" = 3,"n=1000" = 3,"n=2000"=3)) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 

@@ -1,24 +1,16 @@
-# Curvas que respeitam a restrição
+library("e1071")     # para SVM
 
+
+# Curvas que respeitam a restrição
 c1<- function(x,d=2) d*cos(2*pi*x)
 c2<- function(x,d=2) d*sin(2*pi*x)*exp(-0.5*x^2) #curva
 c3<- function(x,d=3) d*sin(3*pi*x)*exp(0.5*x^(4)) #curva
 
 
-#-------- Curvas-------------
-# c1<- function(x,d=1) d*exp(sin(pi*x))
-# c2<- function(x,d=1) d*cos(pi*x)
-
-# #-------- Curvas-------------
-# c1<- function(x,d=0) 2*cos(pi*x)+d
-# c2<- function(x,d=0) 3*cos(pi*x)+d
-
 # curve(c1,-1,1, ylim=c(-5,5))
 # curve(c2,-1,1, add=T)
 # curve(c3,-1,1, add=T)
 # 
-
-
 #--------------------
 amostraMU<-function(n,pii,arg.grupos)
 {
@@ -89,7 +81,7 @@ rMisUniPLM.mu<-function(X,t,z, arg.grupos)
 
 
 #-------------------------
-verificarGeração<-function(amostra, arg.grupos)
+verificarGeração<-function(amostra, arg.grupos, tipo)
 {
   g<-length(arg.grupos)-1
   y<-amostra$y
@@ -98,47 +90,47 @@ verificarGeração<-function(amostra, arg.grupos)
   p<-ncol(X)
   
   
-  hist(y,freq=F, breaks=15)
+  hist(y,freq=F, breaks=15, main=tipo)
   
   grupo<- apply(amostra$clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
-  
+
   #plot(amostra$t, amostra$y, pch=19, cex=0.5,col=cores[grupo])
+  # 
+  # for (i in 1:p)
+  # {
+  #   plot(amostra$X[,2],amostra$y, cex=0.5,col=cores[grupo])
+  # }
+  # 
+  # apply(amostra$clu,1, mean) # proporções geradas 
   
-  for (i in 1:p)
-  {
-    plot(amostra$X[,2],amostra$y, cex=0.5,col=cores[grupo])
-  }
-  
-  apply(amostra$clu,1, mean) # proporções geradas 
-  
-  #--------Plot da variável t pela y menos a parte linear-------
-  g.i<-vector("list",g)
-  
-  for(i in 1:g)
-  {
-    g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
-  }
-  matrizX<-lapply(g.i,FUN=function(x)X[x,])
-  X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
-  
-  beta.grand<-unlist(beta.verd)
-  partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
-  
-  ordem<-unlist(g.i) #indice em que as observações estão em X.g
-  
-  plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
-  c<-vector("list",g)
-  for(i in 1:g)
-  {
-    c[[i]]<-get(arg.grupos[[i]]$curva$f)
-    d<-arg.grupos[[i]]$curva$d
-    a<-arg.grupos[[i]]$curva$a
-    b<-arg.grupos[[i]]$curva$b
-    curve(c[[i]](x,d),a,b,add=T, lwd=3, lty=2)
-  }
+  # #--------Plot da variável t pela y menos a parte linear-------
+  # g.i<-vector("list",g)
+  # 
+  # for(i in 1:g)
+  # {
+  #   g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
+  # }
+  # matrizX<-lapply(g.i,FUN=function(x)X[x,])
+  # X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
+  # 
+  # beta.grand<-unlist(beta.verd)
+  # partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
+  # 
+  # ordem<-unlist(g.i) #indice em que as observações estão em X.g
+  # 
+  # plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
+  # c<-vector("list",g)
+  # for(i in 1:g)
+  # {
+  #   c[[i]]<-get(arg.grupos[[i]]$curva$f)
+  #   d<-arg.grupos[[i]]$curva$d
+  #   a<-arg.grupos[[i]]$curva$a
+  #   b<-arg.grupos[[i]]$curva$b
+  #   curve(c[[i]](x,d),a,b,add=T, lwd=3, lty=2)
+  # }
 }
 
-VerificarEstimacao<-function(amostra, arg.grupos, theta)
+VerificarEstimacao<-function(amostra, arg.grupos, theta, tipo)
 {
   
   N<-theta$N
@@ -151,21 +143,25 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta)
   
 
   grupo<-apply(amostra$clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
-  beta=theta$theta$b
+  
+  # Pega os parâmetros estimados
+  betas=theta$theta$b
   gamma=theta$theta$a
 
   for (i in 2:p) # y vs. x
   {
-    plot(amostra$X[,i],amostra$y, cex=0.5,col=cores[grupo])
-    abline(a=beta[[1]][1],b=beta[[1]][i], lwd=2, lty=2)
-    abline(a=beta[[2]][1],b=beta[[2]][i], lwd=2, lty=2)
+    plot(amostra$X[,i],amostra$y, cex=0.5,col=cores[grupo],
+    main=paste0("y vs. x - ",tipo),ylab="y", xlab="x_i")
+    abline(a=betas[[1]][1],b=betas[[1]][i], lwd=2, lty=2)
+    abline(a=betas[[2]][1],b=betas[[2]][i], lwd=2, lty=2)
     abline(a=beta.verd[[1]][1],b=beta.verd[[1]][i], lwd=3)
     abline(a=beta.verd[[2]][1],b=beta.verd[[2]][i], lwd=3)
-    legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
+    legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3), cex=0.7)
   }
   
   
-  plot(amostra$t, amostra$y, pch=19, cex=0.5,col=cores[grupo])
+  plot(amostra$t, amostra$y, pch=19, cex=0.5,col=cores[grupo], 
+       main=paste0("y vs. t - ",tipo))
   for(i in 1:g)
   {
     y_hat<-as.numeric(N%*%gamma[[i]])
@@ -173,68 +169,68 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta)
     dados<-dados[order(dados$t, decreasing=FALSE),]
     lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
     
-    c[[i]]<-get(arg.grupos[[i]]$curva$f)
+    curva<-get(arg.grupos[[i]]$curva$f)
     d<-arg.grupos[[i]]$curva$d
     a<-arg.grupos[[i]]$curva$a
     b<-arg.grupos[[i]]$curva$b
-    curve(c[[i]](x,d),a,b,add=T, lwd=3, lty=2)
+    curve(curva(x,d),a,b,add=T, lwd=3, lty=2)
     
   }
-  legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
-
+  legend("topright",legend = c("verdadeira","estimada"),lty = c(2,1), lwd = c(2,3), cex=0.4)
   
   
-  #--------Plot da variável t pela y menos a parte linear-----------------
-  # ----------------Ou plot da X menos a curva e as demais lineares-------
-  # Residuo não paramétrico
-  g.i<-vector("list",g)
-  for(i in 1:g)
-  {
-    g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
-  }
   
-  matrizX<-lapply(g.i,FUN=function(x)X[x,]) # Pega as observações que pertecem ao grupo
-  X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
-  
-  beta.grand<-unlist(beta) # X%*%beta.chapeu
-  partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
-  
-  matrizN<-lapply(g.i,FUN=function(x)N[x,]) # Pega as observações que pertecem ao grupo
-  N.grand<-as.matrix(bdiag(matrizN)) # matriz bloco diagonal
-  a.grand<-unlist(gamma)
-  curva<-N.grand%*%a.grand # Efeito das variáveis lineares em Y
-  
-  ordem<-unlist(g.i) #indice em que as observações estão em X.g e N.g
-  
-  # for (i in 2:p) # y-n_i*gamma vs. x
+  # #--------Plot da variável t pela y menos a parte linear-----------------
+  # # ----------------Ou plot da X menos a curva e as demais lineares-------
+  # # Residuo não paramétrico
+  # g.i<-vector("list",g)
+  # for(i in 1:g)
   # {
-  #   plot(amostra$X[ordem,i],amostra$y[ordem]-curva, cex=0.5,col=cores[grupo[ordem]])
-  #   abline(a=b[[1]][1],b=b[[1]][i], lwd=3)
-  #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
-  #   abline(a=4,b=4, lwd=3, lty=2)
-  #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
+  #   g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
   # }
   # 
-  
-  
-  plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
-  for(i in 1:g)
-  {
-    y_hat<-as.numeric(N%*%gamma[[i]])
-    dados<-data.frame(t,y_hat)
-    dados<-dados[order(dados$t, decreasing=FALSE),]
-    lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
-    
-    c[[i]]<-get(arg.grupos[[i]]$curva$f)
-    d<-arg.grupos[[i]]$curva$d
-    a<-arg.grupos[[i]]$curva$a
-    b<-arg.grupos[[i]]$curva$b
-    curve(c[[i]](x,d),a,b,add=T, lwd=3, lty=2)
-    
-  }
-  legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
-  
-  
+  # matrizX<-lapply(g.i,FUN=function(x)X[x,]) # Pega as observações que pertecem ao grupo
+  # X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
+  # 
+  # beta.grand<-unlist(beta) # X%*%beta.chapeu
+  # partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
+  # 
+  # matrizN<-lapply(g.i,FUN=function(x)N[x,]) # Pega as observações que pertecem ao grupo
+  # N.grand<-as.matrix(bdiag(matrizN)) # matriz bloco diagonal
+  # a.grand<-unlist(gamma)
+  # curva<-N.grand%*%a.grand # Efeito das variáveis lineares em Y
+  # 
+  # ordem<-unlist(g.i) #indice em que as observações estão em X.g e N.g
+  # 
+  # # for (i in 2:p) # y-n_i*gamma vs. x
+  # # {
+  # #   plot(amostra$X[ordem,i],amostra$y[ordem]-curva, cex=0.5,col=cores[grupo[ordem]])
+  # #   abline(a=b[[1]][1],b=b[[1]][i], lwd=3)
+  # #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
+  # #   abline(a=4,b=4, lwd=3, lty=2)
+  # #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
+  # # }
+  # # 
+  # 
+  # 
+  # plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
+  # for(i in 1:g)
+  # {
+  #   y_hat<-as.numeric(N%*%gamma[[i]])
+  #   dados<-data.frame(t,y_hat)
+  #   dados<-dados[order(dados$t, decreasing=FALSE),]
+  #   lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
+  #   
+  #   c[[i]]<-get(arg.grupos[[i]]$curva$f)
+  #   d<-arg.grupos[[i]]$curva$d
+  #   a<-arg.grupos[[i]]$curva$a
+  #   b<-arg.grupos[[i]]$curva$b
+  #   curve(c[[i]](x,d),a,b,add=T, lwd=3, lty=2)
+  #   
+  # }
+  # legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
+  # 
+  # 
   
 }
 
@@ -310,7 +306,7 @@ log.vero.MisUniPLM<-function(y,p,g,mu,sigma2)
   return(l)
 }
 
-EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50)
+EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50, clu)
 {
   # Agrupamento inicial K-means
   n<-length(y)
@@ -322,7 +318,31 @@ EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50)
   o.g<-order(km$centers, decreasing = T)
   p0<-p0[o.g]
   rotulos_reordenados<-sapply(km$cluster,FUN=function(y)which(o.g==y))
+  
+  
+  #--------------------------- SVM----------------------------
+  rotulos_reordenados <- as.factor(rotulos_reordenados)
+  svm_model <- svm(rotulos_reordenados ~ y, kernel = "polynomial",degree=3, probability = TRUE, fitted=T)
+  label_svm <- svm_model$fitted
+  p0<-sapply(1:g,FUN=function(x)mean(label_svm==x))
+  
+  grupo<-apply(clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
+  
 
+  tabela<-table(grupo, rotulos_reordenados)
+  acuracia<-sum(diag(tabela))/sum(tabela)
+  acuracia
+  
+  
+  tabela2<-table(grupo, label_svm)
+  acuracia2<-sum(diag(tabela2))/sum(tabela2)
+  acuracia2
+  
+  
+  rotulos_reordenados<-label_svm
+
+  
+  
   
   #------- Construção da matriz N que irá definir as curvas-----
   d<-data.frame(t=t)
@@ -452,7 +472,7 @@ EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50)
 
   }
 
-  return(list(theta=theta,z=z,N=N, K=K))
+  return(list(theta=theta,z=z,N=N, K=K, acuracia=acuracia, acuracia2=acuracia2))
 
 }
 
