@@ -172,3 +172,81 @@ arrows(x+0.05, y0=colMeans(mse.j[[2]])-sd, x+0.05, y1 = colMeans(mse.j[[2]])+sd,
 legend("topright", legend = c("grupo 1", "grupo 2"), lty = 1,lwd=3, col = cores[1:2], cex=0.8, bty="n")
 
 dev.off()
+nome.amostra<-"Amostras/svm_2"
+
+nome.amostra<-"C:/ufjf/2025.1/IC_Misturas/Amostras/C2.2_2_"
+
+par(mfrow=c(1,g), mar=c(1,2,1.5,1.5))
+titulo<-c(expression(paste(sigma[1]^2)), 
+          expression(paste(sigma[2]^2)),
+          expression(paste(sigma[3]^2)))
+recupera.sigmas<-function(i,j)
+{
+  arquivo<-paste0(nome.amostra,sizes[i],".RDS")
+  amostras<-readRDS(arquivo)
+  sigmas2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$theta$sd2})
+  return(sigmas2[j,])
+}
+
+recupera.proporcoes<-function(i,j)
+{
+  arquivo<-paste0(nome.amostra,sizes[i],".RDS")
+  amostras<-readRDS(arquivo)
+  p<-lapply(1:M,FUN=function(x){amostras[[x]][[2]]$theta$p[j]})
+  return(p)
+}
+
+
+
+
+l<-lapply(1:g,FUN=function(j)lapply(seq_along(sizes),FUN=recupera.sigmas,j))
+for(j in 1:g)
+{
+  l.j<-l[[j]]
+  boxplot(l.j,boxwex=0.2,main=titulo[j], pch=1,at=c(1,1.25,1.50,1.75), col=cores,xaxt="n", ylim=c(min(unlist(l)),max(unlist(l))))
+  abline(h=sigma2.verd[j], lty=2, lwd=3)
+  legend("topright",legend = paste0("n = ",sizes), col=cores, bty="n", fill=cores, cex=0.5)
+}
+
+
+titulo<-c(expression(paste(p[1])), 
+          expression(paste(p[2])),
+          expression(paste(p[3])))
+l2<-lapply(1:(g-1),FUN=function(j)lapply(seq_along(sizes),FUN=recupera.sigmas,j))
+
+for(j in 1:(g-1))
+{
+  l.j<-l2[[j]]
+  boxplot(l.j,boxwex=0.2,main=titulo[j], pch=1,at=c(1,1.25,1.50,1.75), col=cores,xaxt="n", ylim=c(min(unlist(l)),max(unlist(l))))
+  abline(h=sigma2.verd[j], lty=2, lwd=3)
+  legend("topright",legend = paste0("n = ",sizes), col=cores, bty="n", fill=cores, cex=0.5)
+}
+
+
+
+
+
+titulo<-c(expression(paste(beta[10])), 
+          expression(paste(beta[11])),
+          expression(paste(beta[12])))
+j=1
+recupera.betas<-function(i,j,z)
+{
+  arquivo<-paste0(nome.amostra,sizes[i],".RDS")
+  amostras<-readRDS(arquivo)
+  betas<-lapply(1:M,FUN=function(x){amostras[[x]][[2]]$theta$b[[j]][z,]})
+  return(unlist(betas))
+}
+
+l3<-lapply(1:3,FUN=function(z)lapply(seq_along(sizes),FUN=recupera.betas,j=j,z=z))
+
+for(x in 1:3)
+{
+  l.p<-l3[[x]]
+  boxplot(l.p,boxwex=0.2,main=titulo[x], pch=1,at=c(1,1.25,1.50,1.75), col=cores,xaxt="n", ylim=c(min(unlist(l3)),max(unlist(l3))))
+  abline(h=beta.verd[[j]][x], lty=2, lwd=3)
+  legend("topright",legend = paste0("n = ",sizes), col=cores, bty="n", fill=cores, cex=0.5)
+}
+
+
+

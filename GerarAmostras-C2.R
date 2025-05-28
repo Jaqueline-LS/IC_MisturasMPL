@@ -14,15 +14,15 @@ par<-par(pch=19)
 M<-500
 g<-2
 
-#Cenario 2
-pii<-c(0.35, 0.65)
-
-beta.verd<-list(c(3,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2_2_"
-# nome.plot<-"c2_2_"
-
-nome.amostra<-"Amostras/svm_2"
-nome.plot<-"svm_2"
+# #Cenario 2
+# pii<-c(0.35, 0.65)
+# 
+# beta.verd<-list(c(3,4,6),c(2,3,-5))
+# # nome.amostra<-"Amostras/c2_2_"
+# # nome.plot<-"c2_2_"
+# 
+# nome.amostra<-"Amostras/svm_2"
+# nome.plot<-"svm_2"
 
 
 # # # Cenario 2.1
@@ -34,10 +34,10 @@ nome.plot<-"svm_2"
 # nome.plot<-"c2.1_2_"
 
 
-# #Cenario 3.1
-# beta.verd<-list(c(4,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2.2_2_"
-# nome.plot<-"c2.2_2_"
+#Cenario 3.1
+beta.verd<-list(c(4,4,6),c(2,3,-5))
+nome.amostra<-"Amostras/c2.2_2_"
+nome.plot<-"c2.2_2_"
 
 
 
@@ -62,7 +62,7 @@ alfas<-c(0.1,0.1)
 
 sizes<-c(300,500,1000,2000)
 
-gera.amostras(300)
+#gera.amostras(sizes)
 #sapply(sizes,FUN = gera.amostras)
 
 source("funcoes/graficos_MSE.R")
@@ -100,7 +100,7 @@ format_scientific_latex <- function(x) {
 # Aplicar a formatação a todos os valores numéricos da tabela
 tabela.final[]<- lapply(tabela.final, format_scientific_latex)
 
-tabela_latex <- knitr::kable(tabela.final, caption = paste0("C1 - Bem separados"), format = "latex", escape = FALSE, booktabs=T) %>%
+tabela_latex <- knitr::kable(tabela.final, caption = paste0("C2 - Mal separados  (SVM)"), format = "latex", escape = FALSE, booktabs=T) %>%
   add_header_above(c(" " = 2, "n=300" = 3,"n=500" = 3,"n=1000" = 3,"n=2000"=3)) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 

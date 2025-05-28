@@ -25,7 +25,7 @@ arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sig
                  g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
-n=10000
+n=1000
 alfas<-c(0.1,0.1)
 
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
@@ -91,7 +91,7 @@ arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sig
                  g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
-n=10000
+n=1000
 alfas<-c(0.1,0.1)
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
 
@@ -150,8 +150,39 @@ p0.2<-sapply(1:g,FUN=function(x)mean(label_svm==x))
 p0.2
 
 
+#-------------------- Pouco separados-------------------
+# Cenario 3.2
+pii<-c(0.35,0.65)
+
+beta.verd<-list(c(4,4,6),c(2,3,-5))
+nome.amostra<-"Amostras/c3.2_2_"
+nome.plot<-"c3.2_2_"
 
 
+#------------------------------
+sigma2.verd<-list(1,1)
+
+
+arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2.verd[[1]],intercepto=T),
+                 g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
+                 intervalos=list(c(0,1),c(0,1)))
+
+
+n=1000
+alfas<-c(0.1,0.1)
+amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
+
+y=amostra$y
+t=amostra$t
+X=amostra$X
+
+jpeg(file=paste0("Resultados/", nome.plot,"graficos3d.jpg"), width = 800, height = 800, quality = 100, pointsize = 30)
+
+print(cloud(y~X[,2]*X[,3], col=cores[grupo], pch=c(8,19)[grupo], cex=0.5), split=c(1,1,2,2), more=T)
+print(cloud(y~t*X[,3], col=cores[grupo], pch=c(8,19)[grupo], cex=0.5), split=c(2,1,2,2), more=T)
+print(cloud(y~t*X[,2], col=cores[grupo], pch=c(8,19)[grupo], cex=0.5), split=c(1,2,2,2), more=T)
+
+dev.off()
 
 
 # 
