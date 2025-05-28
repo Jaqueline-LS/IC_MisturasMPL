@@ -15,14 +15,16 @@ M<-500
 g<-2
 
 # #Cenario 2
-# pii<-c(0.35, 0.65)
-# 
-# beta.verd<-list(c(3,4,6),c(2,3,-5))
-# # nome.amostra<-"Amostras/c2_2_"
-# # nome.plot<-"c2_2_"
-# 
-# nome.amostra<-"Amostras/svm_2"
-# nome.plot<-"svm_2"
+pii<-c(0.35, 0.65)
+
+beta.verd<-list(c(3,4,6),c(2,3,-5))
+sigma2.verd<-list(2,1)
+
+# nome.amostra<-"Amostras/c2_2_"
+# nome.plot<-"c2_2_"
+
+nome.amostra<-"Amostras/svm_2"
+nome.plot<-"svm_2"
 
 
 # # # Cenario 2.1
@@ -34,16 +36,17 @@ g<-2
 # nome.plot<-"c2.1_2_"
 
 
-#Cenario 3.1
-beta.verd<-list(c(4,4,6),c(2,3,-5))
-nome.amostra<-"Amostras/c2.2_2_"
-nome.plot<-"c2.2_2_"
+## Cenario 3.1
+# beta.verd<-list(c(4,4,6),c(2,3,-5))
+# nome.amostra<-"Amostras/c2.2_2_"
+# nome.plot<-"c2.2_2_"
+#sigma2.verd<-list(1,1)
+
 
 
 
 
 #------------------------------
-sigma2.verd<-list(1,1)
 
 
 arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2.verd[[1]],intercepto=T),
@@ -106,5 +109,5 @@ tabela_latex <- knitr::kable(tabela.final, caption = paste0("C2 - Mal separados 
 
 tabela_latex
 
-
+source("funcoes/graficos_boxplots.R")
 

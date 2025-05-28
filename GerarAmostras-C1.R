@@ -14,15 +14,18 @@ par<-par(pch=19)
 M<-500
 g<-2
 
-# Cenario 1
+# # Cenario 1
 # pii<-c(0.35, 0.65)
-# 
 # beta.verd<-list(c(8,4,6),c(2,3,-5))
+# nome.amostra<-"Amostras/c1_2_"
+# nome.plot<-"c1_2_"
 
-# # # Cenario 1.1
-pii<-c(0.35, 0.65)
 
+# # Cenario 1.1
+pii<-c(0.47, 0.53)
 beta.verd<-list(c(8,4,6),c(2,3,-5))
+nome.amostra<-"Amostras/c1.1_2_"
+nome.plot<-"c1.1_2_"
 
 
 sigma2.verd<-list(2,1)
@@ -43,8 +46,8 @@ verificarGeração(amostra,arg.grupos, tipo="Bem separados")
 #---------------------------------------------------
 alfas<-c(0.1,0.1)
 sizes<-c(300,500,1000,2000)
-nome.amostra<-"Amostras/svm_1"
-nome.plot<-"svm_1"
+# nome.amostra<-"Amostras/svm_1"
+# nome.plot<-"svm_1"
 
 gera.amostras(300)
 sapply(sizes,FUN = gera.amostras)
@@ -92,5 +95,7 @@ tabela_latex <- knitr::kable(tabela.final, caption = paste0("C3 - Pouco separado
 
 tabela_latex
 
+
+source("funcoes/graficos_boxplots.R")
 
 

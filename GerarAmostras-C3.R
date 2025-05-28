@@ -7,38 +7,25 @@ source("funcoes/funcoes.R")
 source("funcoes/funcoesMisturas.R")
 source("funcoes/GerarAmostras_geral.R")
 
-#cores<-c("#BAF3DE","#FF9B95","#C9E69E","#FFC29A")
-cores<-c("#1d91c0","#ff5858")
+cores<-c("#BAF3DE","#FF9B95","#C9E69E","#FFC29A")
+#cores<-c("#1d91c0","#ff5858")
 
 par<-par(pch=19)
 
 
-M<-1
+M<-500
 g<-2
 
-#Cenario 2
-# pii<-c(0.35, 0.65)
-# 
-# beta.verd<-list(c(3,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2_2_"
-# nome.plot<-"c2_2_"
 
-# # # Cenario 2.1
-# 
+
+#Cenario 3.1
 # pii<-c(0.47, 0.53)
-# 
-# beta.verd<-list(c(3,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2.1_2_"
-# nome.plot<-"c2.1_2_"
-
-
-# #Cenario 3.1
 # beta.verd<-list(c(4,4,6),c(2,3,-5))
 # nome.amostra<-"Amostras/c2.2_2_"
 # nome.plot<-"c2.2_2_"
 
 
-# Cenario 3.2
+#Cenario 3.2
 pii<-c(0.35,0.65)
 
 beta.verd<-list(c(4,4,6),c(2,3,-5))
@@ -66,7 +53,6 @@ verificarGeração(amostra, arg.grupos,tipo="Pouco separados")
 alfas<-c(0.1,0.1)
 
 sizes<-c(300,500,1000,2000)
-gera.amostras(5000)
 #sapply(sizes,FUN = gera.amostras)
 
 source("funcoes/graficos_MSE.R")
@@ -110,5 +96,11 @@ tabela_latex <- knitr::kable(tabela.final, caption = paste0("C3 - Pouco separado
 
 tabela_latex
 
+source("funcoes/graficos_boxplots.R")
 
-
+sizes<-c(300,500,1000,2000)
+pii<-c(0.35,0.65)
+beta.verd<-list(c(4,4,6),c(2,3,-5))
+nome.amostra<-"Amostras/c3.2_2_"
+nome.plot<-"c3.2_2_"
+source("funcoes/graficos_boxplots.R")

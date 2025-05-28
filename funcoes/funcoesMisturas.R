@@ -320,26 +320,26 @@ EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50, clu)
   rotulos_reordenados<-sapply(km$cluster,FUN=function(y)which(o.g==y))
   
   
-  #--------------------------- SVM----------------------------
-  rotulos_reordenados <- as.factor(rotulos_reordenados)
-  svm_model <- svm(rotulos_reordenados ~ y, kernel = "polynomial",degree=3, probability = TRUE, fitted=T)
-  label_svm <- svm_model$fitted
-  p0<-sapply(1:g,FUN=function(x)mean(label_svm==x))
-  
-  grupo<-apply(clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
-  
-
-  tabela<-table(grupo, rotulos_reordenados)
-  acuracia<-sum(diag(tabela))/sum(tabela)
-  acuracia
-  
-  
-  tabela2<-table(grupo, label_svm)
-  acuracia2<-sum(diag(tabela2))/sum(tabela2)
-  acuracia2
-  
-  
-  rotulos_reordenados<-label_svm
+  # #--------------------------- SVM----------------------------
+  # rotulos_reordenados <- as.factor(rotulos_reordenados)
+  # svm_model <- svm(rotulos_reordenados ~ y, kernel = "polynomial",degree=3, probability = TRUE, fitted=T)
+  # label_svm <- svm_model$fitted
+  # p0<-sapply(1:g,FUN=function(x)mean(label_svm==x))
+  # 
+  # grupo<-apply(clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
+  # 
+  # 
+  # tabela<-table(grupo, rotulos_reordenados)
+  # acuracia<-sum(diag(tabela))/sum(tabela)
+  # acuracia
+  # 
+  # 
+  # tabela2<-table(grupo, label_svm)
+  # acuracia2<-sum(diag(tabela2))/sum(tabela2)
+  # acuracia2
+  # 
+  # 
+  # rotulos_reordenados<-label_svm
 
   
   
@@ -472,8 +472,8 @@ EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50, clu)
 
   }
 
-  return(list(theta=theta,z=z,N=N, K=K, acuracia=acuracia, acuracia2=acuracia2))
-
+ #return(list(theta=theta,z=z,N=N, K=K, acuracia=acuracia, acuracia2=acuracia2))
+  return(list(theta=theta,z=z,N=N, K=K))
 }
 
 

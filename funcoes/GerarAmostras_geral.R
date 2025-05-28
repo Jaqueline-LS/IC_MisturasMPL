@@ -83,11 +83,11 @@ tabela.n<-function(n)
     ep=c(sd.p,sd.b1,sd.b2, sd.s2), ep.MI=sd.Emp)
   
   colnames(tabela)<-c("$\\hat{\\theta}$", "sd", "sd.emp")
-  
-  acuracias<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia})
-  acuracias2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia2})
-  cat("A acuracia do k-means no agrupamento inicial foi: ", mean(acuracias)*100)
-  cat("A acuracia depois do SVM foi: ", mean(acuracias2)*100)
+  # 
+  # acuracias<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia})
+  # acuracias2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia2})
+  # cat("A acuracia do k-means no agrupamento inicial foi: ", mean(acuracias)*100)
+  # cat("A acuracia depois do SVM foi: ", mean(acuracias2)*100)
 
   
   plot(x="",xlim = c(-1,1), ylim=c(-6,6), 
