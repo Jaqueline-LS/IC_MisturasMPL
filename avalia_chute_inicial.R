@@ -18,7 +18,7 @@ g<-2
 pii<-c(0.35, 0.65)
 nome.plot<-"c1.1_2_"
 
-beta.verd<-list(c(8,4,6),c(2,3,-5))
+beta.verd<-list(c(4,4,6),c(2,3,-5))
 
 sigma2.verd<-list(1,1)
 
@@ -47,9 +47,9 @@ s3d <- scatterplot3d(z=y,x=X[,3],y=X[,2],
                      angle = 55, scale.y = 0.7, 
                      pch = c(17,20)[grupo], cex.symbols = 1.3,
                      main = paste0("Gráfico de dispersão 3D - C",k) )
-s3d$plane3d(beta.verd[[1]][1],x.coef = beta.verd[[1]][2], y.coef = beta.verd[[1]][3], col=cores[1], lwd=2)
+s3d$plane3d(beta.verd[[1]][1],x.coef = beta.verd[[1]][3], y.coef = beta.verd[[1]][2], col=cores[1], lwd=2)
 
-s3d$plane3d(beta.verd[[2]][1],x.coef = beta.verd[[2]][2], y.coef = beta.verd[[2]][3], col=cores[2], lwd=2)
+s3d$plane3d(beta.verd[[2]][1],x.coef = beta.verd[[2]][3], y.coef = beta.verd[[2]][2], col=cores[2], lwd=2)
 
 legend("topright", legend = c("Grupo 1","Grupo 2"), fill = cores[1:2])
 

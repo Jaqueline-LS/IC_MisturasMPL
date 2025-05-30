@@ -83,11 +83,13 @@ tabela.n<-function(n)
     ep=c(sd.p,sd.b1,sd.b2, sd.s2), ep.MI=sd.Emp)
   
   colnames(tabela)<-c("$\\hat{\\theta}$", "sd", "sd.emp")
-  # 
-  # acuracias<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia})
-  # acuracias2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia2})
-  # cat("A acuracia do k-means no agrupamento inicial foi: ", mean(acuracias)*100)
-  # cat("A acuracia depois do SVM foi: ", mean(acuracias2)*100)
+
+  acuracias<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia})
+  acuracias2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia2})
+  boxplot(acuracias,acuracias2, col=cores[1], main="Acurácia do agrupamento inicial das das 500 réplicas n=2000",xaxt="n")
+  axis(1,at=c(1,2) ,labels = c("K-Means","SVM") )# Personaliza o eixo X com intervalos de 3
+  
+  #cat("A acuracia depois do SVM foi: ", mean(acuracias2)*100)
 
   
   plot(x="",xlim = c(-1,1), ylim=c(-6,6), 
