@@ -53,22 +53,52 @@ arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sig
                  g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
+# Para gerar uma amostra de teste com o agrupamento do k-mean
+
 n=300
 alfas<-c(0.1,0.1)
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
 theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
 
-VerificarEstimacao(amostra,arg.grupos, theta, tipo="Mal separados")
-verificarGeração(amostra,arg.grupos,tipo="Mal separados")
-#---------------------------------------------------
-alfas<-c(0.1,0.1)
+# Para acessar os valores estimados
+theta$theta$b # Para acessar os betas
 
+theta$z
+#------------------------------------------------------------------
+
+#----------------------- Exemplo de estimação pela função com o SVM
+amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
+theta<-try(EMisUniPLM.SVM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
+
+theta$acuracia # Acuracia do k-means
+
+theta$acuracia2 # Acuracia do SVM
+
+
+
+#---------------------------------------------------
+
+
+# -------------------------------Replicações------------------------------------------------
+alfas<-c(0.1,0.1)
 sizes<-c(300,500,1000,2000)
 
-#gera.amostras(sizes)
-#sapply(sizes,FUN = gera.amostras)
+# Esse comando gera as M amostras de tamanho 300 o arquivo é salvo na pasta Amostras 
+# gera.amostras(300) 
 
+# Para mais detalhes da geração das replicas das amostras confeir o arquivo "GerarAmostras_geral.R"
+
+
+# Esse comando vai gerar as M amostras para cada tamanho de amostra definido em sizes
+# Os arquivos são salvos na pasta Amostras
+# sapply(sizes,FUN = gera.amostras) 
+
+
+# Se quiser gerar os gráficos do MSE
 source("funcoes/graficos_MSE.R")
+
+
+# Para plotar as curvas e contruir as tabelas
 
 jpeg(file=paste0("Resultados/", nome.plot,"curvas.jpg"), width = 1500, height = 800, quality = 100, pointsize = 20)
 
@@ -103,11 +133,13 @@ format_scientific_latex <- function(x) {
 # Aplicar a formatação a todos os valores numéricos da tabela
 tabela.final[]<- lapply(tabela.final, format_scientific_latex)
 
-tabela_latex <- knitr::kable(tabela.final, caption = paste0("C2 - Mal separados  (SVM)"), format = "latex", escape = FALSE, booktabs=T) %>%
+tabela_latex <- knitr::kable(tabela.final, caption = paste0("C3 - Pouco separados"), format = "latex", escape = FALSE, booktabs=T) %>%
   add_header_above(c(" " = 2, "n=300" = 3,"n=500" = 3,"n=1000" = 3,"n=2000"=3)) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 
 tabela_latex
 
-source("funcoes/graficos_boxplots.R")
 
+# Para gerar os Box-plots
+
+source("funcoes/graficos_boxplots.R")

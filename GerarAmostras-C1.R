@@ -2,30 +2,38 @@ rm(list = ls(all = TRUE))
 library("Matrix")
 library("mgcv")
 library("dplyr")
-library("kableExtra")
+library("kableExtra") 
 source("funcoes/funcoes.R")
 source("funcoes/funcoesMisturas.R")
-source("funcoes/GerarAmostras_geral.R")
+source("funcoes/GerarAmostras_geral.R") 
 cores<-c("#BAF3DE","#C9E69E","#FF9B95","#FFC29A")
 cores2<-c("#1d91c0","#ff5858")
 par<-par(pch=19)
 
 
+
+# Define o número de réplicas e o número de grupos
+
 M<-500
 g<-2
 
+
+# Define os parametros do cenario
 # # Cenario 1
-# pii<-c(0.35, 0.65)
-# beta.verd<-list(c(8,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c1_2_"
-# nome.plot<-"c1_2_"
+pii<-c(0.35, 0.65)
+beta.verd<-list(c(8,4,6),c(2,3,-5))
+
+# Se quiser rodar as funções já programadas para gerar as réplicas e os gráficos
+# Pode dar um nome para as amostras, aqui elas serão salvas com os nome c1_2_300, c1_2_500... na pasta Amostras
+nome.amostra<-"Amostras/c1_2_"
+nome.plot<-"c1_2_"
 
 
 # # Cenario 1.1
-pii<-c(0.47, 0.53)
-beta.verd<-list(c(8,4,6),c(2,3,-5))
-nome.amostra<-"Amostras/c1.1_2_"
-nome.plot<-"c1.1_2_"
+# pii<-c(0.47, 0.53)
+# beta.verd<-list(c(8,4,6),c(2,3,-5))
+# nome.amostra<-"Amostras/c1.1_2_"
+# nome.plot<-"c1.1_2_"
 
 
 sigma2.verd<-list(2,1)
@@ -35,26 +43,52 @@ arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sig
                  g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
+# Para gerar uma amostra de teste com o agrupamento do k-mean
+
 n=300
 alfas<-c(0.1,0.1)
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
 theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
-par(mfrow=c(3,1), mar=c(2,1,1,1))
 
-VerificarEstimacao(amostra,arg.grupos, theta, tipo="Bem separados")
-verificarGeração(amostra,arg.grupos, tipo="Bem separados")
+# Para acessar os valores estimados
+theta$theta$b # Para acessar os betas
+
+theta$z
+#------------------------------------------------------------------
+
+#----------------------- Exemplo de estimação pela função com o SVM
+amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
+theta<-try(EMisUniPLM.SVM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
+
+theta$acuracia # Acuracia do k-means
+
+theta$acuracia2 # Acuracia do SVM
+
+
+
 #---------------------------------------------------
+
+
+# Replicações------------------------------------------------
 alfas<-c(0.1,0.1)
 sizes<-c(300,500,1000,2000)
-# nome.amostra<-"Amostras/svm_1"
-# nome.plot<-"svm_1"
 
-gera.amostras(300)
-sapply(sizes,FUN = gera.amostras)
+# Esse comando gera as M amostras de tamanho 300 o arquivo é salvo na pasta Amostras 
+# gera.amostras(300) 
 
+# Para mais detalhes da geração das replicas das amostras confeir o arquivo "GerarAmostras_geral.R"
+
+
+# Esse comando vai gerar as M amostras para cada tamanho de amostra definido em sizes
+# Os arquivos são salvos na pasta Amostras
+# sapply(sizes,FUN = gera.amostras) 
+
+
+# Se quiser gerar os gráficos do MSE
 source("funcoes/graficos_MSE.R")
 
 
+# Para plotar as curvas e contruir as tabelas
 
 jpeg(file=paste0("Resultados/", nome.plot,"curvas.jpg"), width = 1500, height = 800, quality = 100, pointsize = 20)
 
@@ -95,6 +129,8 @@ tabela_latex <- knitr::kable(tabela.final, caption = paste0("C3 - Pouco separado
 
 tabela_latex
 
+
+# Para gerar os Box-plots
 
 source("funcoes/graficos_boxplots.R")
 

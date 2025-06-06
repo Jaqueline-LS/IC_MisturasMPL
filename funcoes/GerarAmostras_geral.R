@@ -6,8 +6,8 @@ gera.amostras<-function(n)
     aux=0
     while (aux==0){
       amostra<-rMisUniPLM(n, pii,p=length(beta.verd[[1]]), arg=arg.grupos) 
-     # theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
-      theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu = amostra$clu),TRUE)
+      theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
+      #theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu = amostra$clu),TRUE)
       aux1<-sum(class(theta) != "try-error")
       if(aux1!=0)
       {
@@ -43,7 +43,54 @@ gera.amostras<-function(n)
 }
 
 
-tabela.n<-function(n)
+
+gera.amostras.SVM<-function(n)
+{
+  teptetam<-vector("list",M)
+  for (i in 1:M)
+  {
+    aux=0
+    while (aux==0){
+      amostra<-rMisUniPLM(n, pii,p=length(beta.verd[[1]]), arg=arg.grupos) 
+      theta<-try(EMisUniPLM.SVM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu = amostra$clu),TRUE)
+      aux1<-sum(class(theta) != "try-error")
+      if(aux1!=0)
+      {
+        MI<-MI.MisUniPLM(y=amostra$y,X=amostra$X,alfas=alfas,theta)
+        teste<-try(solve(MI), silent = TRUE)
+        aux2<-sum(class(teste) != "try-error")
+        aux<- aux1 & aux2
+      }else{
+        aux<-0
+      }
+    }
+    cov.theta<-teste
+    p<-ncol(amostra$X)
+    n<-nrow(amostra$X)
+    q<-ncol(theta$N)
+    g<-length(theta$theta$p)+1
+    
+    sd.p<-sqrt(diag(cov.theta)[1:(g-1)])
+    sd.b<-sqrt(diag(cov.theta)[g:((g-1)+g*p)])
+    
+    #sd.a<-sqrt(diag(cov.theta)[(g+g*p):((g-1)+g*p+g*q)])
+    
+    sd.sigma2<-sqrt(diag(cov.theta)[(g+g*p+g*q):((g-1)+g*p+g*q+g)])
+    
+    #erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.a=sd.a,sd.sigma2=sd.sigma2, ginv=aux)
+    
+    erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.sigma2=sd.sigma2)
+    
+    teptetam[[i]]<-list(t=amostra$t, theta, erro.padrao, y=amostra$y,X=amostra$X,alfas=alfas)
+    
+  }
+  saveRDS(teptetam, file=paste0(nome.amostra,n,".RDS"))
+}
+
+
+
+
+tabela.n<-function(n) # Função para ler os arquivos e pegar os valores estimados para as M replicas 
 {
   arquivo<-paste0(nome.amostra,n,".RDS")
   amostras<-readRDS(arquivo)
@@ -89,7 +136,6 @@ tabela.n<-function(n)
   boxplot(acuracias,acuracias2, col=cores[1], main="Acurácia do agrupamento inicial das das 500 réplicas n=2000",xaxt="n")
   axis(1,at=c(1,2) ,labels = c("K-Means","SVM") )# Personaliza o eixo X com intervalos de 3
   
-  #cat("A acuracia depois do SVM foi: ", mean(acuracias2)*100)
 
   
   plot(x="",xlim = c(-1,1), ylim=c(-6,6), 
