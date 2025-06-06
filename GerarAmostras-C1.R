@@ -76,6 +76,8 @@ sizes<-c(300,500,1000,2000)
 # Esse comando gera as M amostras de tamanho 300 o arquivo é salvo na pasta Amostras 
 # gera.amostras(300) 
 
+# Se quiser estimar pela funcao com SVM "gera.amostras.SVM" é o nome da função
+
 # Para mais detalhes da geração das replicas das amostras confeir o arquivo "GerarAmostras_geral.R"
 
 
