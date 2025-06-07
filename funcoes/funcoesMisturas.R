@@ -58,7 +58,12 @@ rMisUniPLM<- function(n, pii, p, arg)
   g <- length(pii)
   for(i in 1:n) 
   {
-    j<-which(z[,i]==T)
+    if(g==1)
+    {
+      j<-1
+    }else{
+      j<-which(z[,i]==T)
+    }
     modelo<-rPLM(n=1,p=p,beta=arg[[j]]$beta,curva = arg[[j]]$curva,
                  sigma2=arg[[j]]$sigma2, intercepto = arg[[j]]$intercepto,
                  intervalos = arg$intervalos) 
@@ -103,7 +108,7 @@ log.vero.MisUniPLM<-function(y,p,g,mu,sigma2)
 # #-----------------------------------------------
 
 
-EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50, clu)
+EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50)
 {
   # Agrupamento inicial K-means
   n<-length(y)
