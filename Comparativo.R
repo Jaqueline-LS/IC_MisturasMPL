@@ -82,6 +82,63 @@ gera.amostras1<-function(n)
   saveRDS(teptetam, file=paste0(nome.amostra,n,".RDS"))
 }
 
+gera.amostras2<-function(n)
+{
+  teptetam<-vector("list",M)
+  for (i in 1:M)
+  {
+    aux=0
+    while (aux==0){
+      amostra<-rMisUniPLM(n, pii=1, p=length(beta.verd), arg=arg.grupos)
+      theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
+      t<-amostra$t
+      d<-data.frame(t=t)
+      ZZ<-smoothCon(s(t,bs="ps",m=c(2,3)),data=d,knots=NULL,absorb.cons=T) 
+      # absorb.cons = T ( restrição de idenficabilidade )
+      # bs="ps",m=c(2,3) P-splines, B-splines cúbicos com penalização de ordem 2
+      N<-ZZ[[1]]$X
+      K<-(ZZ[[1]]$S)[[1]]
+      theta2<-try(estimar.semiParametrico(y=amostra$y,X=amostra$X,N,K,alfa=alfas,precision=1e-5),TRUE)
+      
+      aux1<-sum(class(theta) != "try-error")
+      if(aux1!=0)
+      {
+        MI<-MI.MisUniPLM(y=amostra$y,X=amostra$X,alfas=alfas,theta)
+        teste<-try(solve(MI), silent = TRUE)
+        aux2<-sum(class(teste) != "try-error")
+        aux<- aux1 & aux2
+      }else{
+        aux<-0
+      }
+    }
+    cov.theta<-teste
+    p<-ncol(amostra$X)
+    n<-nrow(amostra$X)
+    q<-ncol(theta$N)
+    g<-length(theta$theta$p)+1
+    if(g==1)
+    {
+      sd.p<-NULL
+    }else{
+      sd.p<-sqrt(diag(cov.theta)[1:(g-1)])
+    }
+    sd.b<-sqrt(diag(cov.theta)[g:((g-1)+g*p)])
+    
+    #sd.a<-sqrt(diag(cov.theta)[(g+g*p):((g-1)+g*p+g*q)])
+    
+    sd.sigma2<-sqrt(diag(cov.theta)[(g+g*p+g*q):((g-1)+g*p+g*q+g)])
+    
+    #erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.a=sd.a,sd.sigma2=sd.sigma2, ginv=aux)
+    
+    erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.sigma2=sd.sigma2)
+    erro.padrao2<-MI.semiParametrico(X=amostra$X,N,alfa=alfas,sigma2.hat=theta2$sigma2,K)
+    
+    teptetam[[i]]<-list(t=amostra$t,t1=theta,t2=theta2, erro.padrao, erro.padrao2, y=amostra$y,X=amostra$X,alfas=alfas)
+    
+  }
+  saveRDS(teptetam, file=paste0(nome.amostra,n,".RDS"))
+}
+
 estimar.semiParametrico<-function(y,X,N,K,alfa,precision=1e-5)
 {
   n<-dim(X)[1]
@@ -244,3 +301,9 @@ nome.amostra<-"comparacao.amostra1"
 
 #gera.amostras1(1000)
 tabela.n(1000)
+
+arg.grupos<-list(g1=list(beta=beta.verd,curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2,intercepto=T),
+                 intervalos=list(c(0,1),c(0,1)))
+gera.amostras2(2000)
+tabela.n(2000)
+
