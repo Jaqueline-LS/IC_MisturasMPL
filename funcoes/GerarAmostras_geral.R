@@ -7,7 +7,6 @@ gera.amostras<-function(n)
     while (aux==0){
       amostra<-rMisUniPLM(n, pii,p=length(beta.verd[[1]]), arg=arg.grupos) 
       theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
-      #theta<-try(EMisUniPLM(g=g,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu = amostra$clu),TRUE)
       aux1<-sum(class(theta) != "try-error")
       if(aux1!=0)
       {
@@ -32,11 +31,9 @@ gera.amostras<-function(n)
     
     sd.sigma2<-sqrt(diag(cov.theta)[(g+g*p+g*q):((g-1)+g*p+g*q+g)])
     
-    #erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.a=sd.a,sd.sigma2=sd.sigma2, ginv=aux)
-    
     erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.sigma2=sd.sigma2)
     
-    teptetam[[i]]<-list(t=amostra$t, theta, erro.padrao, y=amostra$y,X=amostra$X,alfas=alfas)
+    teptetam[[i]]<-list(amostra=amostra,saida.EM=theta,erro.padrao=erro.padrao,alfas=alfas)
     
   }
   saveRDS(teptetam, file=paste0(nome.amostra,n,".RDS"))
@@ -81,7 +78,7 @@ gera.amostras.SVM<-function(n)
     
     erro.padrao<-list(sd.p=sd.p,sd.b=sd.b, sd.sigma2=sd.sigma2)
     
-    teptetam[[i]]<-list(t=amostra$t, theta, erro.padrao, y=amostra$y,X=amostra$X,alfas=alfas)
+    teptetam[[i]]<-list(t=amostra$t, theta, erro.padrao, y=amostra$y,X=amostra$X,alfas=alfas, clu=amostra$clu)
     
   }
   saveRDS(teptetam, file=paste0(nome.amostra,n,".RDS"))
@@ -96,7 +93,7 @@ tabela.n<-function(n) # Função para ler os arquivos e pegar os valores estimad
   amostras<-readRDS(arquivo)
   
   # Recuperando as proporções estimadas
-  p<-lapply(1:M,FUN=function(x){amostras[[x]][[2]]$theta$p})
+  p<-lapply(1:M,FUN=function(x){amostras[[x]]$saida.EM$theta$p})
   
   p1<-sapply(1:M,FUN=function(x){p[[x]][[1]]})
   p1.medias<-mean(p1)
@@ -104,7 +101,7 @@ tabela.n<-function(n) # Função para ler os arquivos e pegar os valores estimad
   sd.p<-sd(p1)
   
   # Betas
-  betas<-lapply(1:M,FUN=function(x){amostras[[x]][[2]]$theta$b})
+  betas<-lapply(1:M,FUN=function(x){amostras[[x]]$saida.EM$theta$b})
   
   betas1<-sapply(1:M,FUN=function(x){betas[[x]][[1]]})
   b1.medios<-apply(betas1, MARGIN = 1, FUN=mean)
@@ -116,12 +113,12 @@ tabela.n<-function(n) # Função para ler os arquivos e pegar os valores estimad
   sd.b2<-apply(betas2, MARGIN = 1, FUN=sd)
   
   # Sigmas
-  sigmas2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$theta$sd2})
+  sigmas2<-sapply(1:M,FUN=function(x){amostras[[x]]$saida.EM$theta$sd2})
   sigmas2.medios<-apply(sigmas2, 1, mean)
   
   sd.s2<-apply(sigmas2, 1, sd)
   
-  sd.Emp<-lapply(1:M,FUN=function(x){amostras[[x]][[3]]})
+  sd.Emp<-lapply(1:M,FUN=function(x){amostras[[x]]$erro.padrao})
   sd.Emp<-sapply(1:M, FUN=function(x){unlist(sd.Emp[[x]])})
   sd.Emp<-apply(sd.Emp, MARGIN = 1,mean)
   
@@ -131,12 +128,13 @@ tabela.n<-function(n) # Função para ler os arquivos e pegar os valores estimad
   
   colnames(tabela)<-c("$\\hat{\\theta}$", "sd", "sd.emp")
 
-  acuracias<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia})
-  acuracias2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia2})
-  boxplot(acuracias,acuracias2, col=cores[1], main="Acurácia do agrupamento inicial das das 500 réplicas n=2000",xaxt="n")
-  axis(1,at=c(1,2) ,labels = c("K-Means","SVM") )# Personaliza o eixo X com intervalos de 3
+  # acuracias<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia})
+  # acuracias2<-sapply(1:M,FUN=function(x){amostras[[x]][[2]]$acuracia2})
+  # boxplot(acuracias,acuracias2, col=cores[1], main="Acurácia do agrupamento inicial das das 500 réplicas n=2000",xaxt="n")
+  # axis(1,at=c(1,2) ,labels = c("K-Means","SVM") )# Personaliza o eixo X com intervalos de 3
+  # 
   
-
+  
   
   plot(x="",xlim = c(-1,1), ylim=c(-6,6), 
        main=paste0("n = ",n), 
@@ -144,26 +142,34 @@ tabela.n<-function(n) # Função para ler os arquivos e pegar os valores estimad
   
   for(j in 1:M)
   {
-    N<-amostras[[j]][[2]]$N
-    t<-amostras[[j]][[1]]
-    y_hat<-as.numeric(N%*%amostras[[j]][[2]]$theta$a[[1]])
+    N<-amostras[[j]]$saida.EM$N
+    t<-amostras[[j]]$amostra$t
+    y_hat<-as.numeric(N%*%amostras[[j]]$saida.EM$theta$a[[1]])
     dados<-data.frame(t,y_hat)
     dados<-dados[order(dados$t, decreasing=FALSE),]
     lines(dados$t,dados$y_hat, col=cores[1])
   }
-  curve(c1(x,d=2),from=-1,to=1, lwd=1,add=T)
+  curva<-get(arg.grupos[[1]]$curva$f)
+  d<-arg.grupos[[1]]$curva$d
+  a<-arg.grupos[[1]]$curva$a
+  b<-arg.grupos[[1]]$curva$b
+  curve(curva(x,d),a,b, lwd=1,add=T)
   
   
   for(j in 1:M)
   {
-    N<-amostras[[j]][[2]]$N
-    t<-amostras[[j]][[1]]
+    N<-amostras[[j]]$saida.EM$N
+    t<-amostras[[j]]$amostra$t
     y_hat<-as.numeric(N%*%amostras[[j]][[2]]$theta$a[[2]])
     dados<-data.frame(t,y_hat)
     dados<-dados[order(dados$t, decreasing=FALSE),]
     lines(dados$t,dados$y_hat, col=cores[2])
   }
-  curve(c2(x,d=4),from=-1,to=1, lwd=1,add=T)
+  curva<-get(arg.grupos[[2]]$curva$f)
+  d<-arg.grupos[[2]]$curva$d
+  a<-arg.grupos[[2]]$curva$a
+  b<-arg.grupos[[2]]$curva$b
+  curve(curva(x,d),a,b, lwd=1,add=T)
   
   legend("topright", legend=c("Grupo 1","Grupo 2"), bty = "n",lwd = 3, col=cores[1:2], cex=1)
   

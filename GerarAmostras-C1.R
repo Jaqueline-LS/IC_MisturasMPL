@@ -7,7 +7,6 @@ source("funcoes/funcoes.R")
 source("funcoes/funcoesMisturas.R")
 source("funcoes/GerarAmostras_geral.R") 
 cores<-c("#BAF3DE","#C9E69E","#FF9B95","#FFC29A")
-cores2<-c("#1d91c0","#ff5858")
 par<-par(pch=19)
 
 
@@ -21,12 +20,13 @@ g<-2
 # Define os parametros do cenario
 # # Cenario 1
 pii<-c(0.35, 0.65)
-beta.verd<-list(c(8,4,6),c(2,3,-5))
+# beta.verd<-list(c(8,4,6),c(2,3,-5))
+beta.verd<-list(c(8,4,6),c(-2,-3,-5))
 
 # Se quiser rodar as funções já programadas para gerar as réplicas e os gráficos
 # Pode dar um nome para as amostras, aqui elas serão salvas com os nome c1_2_300, c1_2_500... na pasta Amostras
-nome.amostra<-"Amostras/c1_2_"
-nome.plot<-"c1_2_"
+nome.amostra<-"Amostras.corrigidas/c1"
+nome.plot<-"c1_"
 
 
 # # Cenario 1.1
@@ -36,24 +36,28 @@ nome.plot<-"c1_2_"
 # nome.plot<-"c1.1_2_"
 
 
-sigma2.verd<-list(2,1)
+#sigma2.verd<-list(2,1)
+
+sigma2.verd<-list(0.2,0.1)
 
 
-arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2.verd[[1]],intercepto=T),
-                 g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
+
+arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=1),sigma2=sigma2.verd[[1]],intercepto=T),
+                 g2=list(beta=beta.verd[[2]],curva=list(f="c1",a=-1,b=1,d=-2),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
-# Para gerar uma amostra de teste com o agrupamento do k-mean
+# Para gerar uma amostra de teste com o agrupamento do k-means
 
 n=300
 alfas<-c(0.1,0.1)
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
-theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
+theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
 
 # Para acessar os valores estimados
 theta$theta$b # Para acessar os betas
 
 theta$z
+verificarGeração(amostra, arg.grupos, tipo="Cenário 1")
 #------------------------------------------------------------------
 
 #----------------------- Exemplo de estimação pela função com o SVM
@@ -74,8 +78,6 @@ alfas<-c(0.1,0.1)
 sizes<-c(300,500,1000,2000)
 
 # Esse comando gera as M amostras de tamanho 300 o arquivo é salvo na pasta Amostras 
-# gera.amostras(300) 
-
 # Se quiser estimar pela funcao com SVM "gera.amostras.SVM" é o nome da função
 
 # Para mais detalhes da geração das replicas das amostras confeir o arquivo "GerarAmostras_geral.R"
@@ -83,14 +85,14 @@ sizes<-c(300,500,1000,2000)
 
 # Esse comando vai gerar as M amostras para cada tamanho de amostra definido em sizes
 # Os arquivos são salvos na pasta Amostras
-# sapply(sizes,FUN = gera.amostras) 
+sapply(sizes,FUN = gera.amostras) 
 
 
 # Se quiser gerar os gráficos do MSE
 source("funcoes/graficos_MSE.R")
 
 
-# Para plotar as curvas e contruir as tabelas
+# Para plotar as curvas e construir as tabelas
 
 jpeg(file=paste0("Resultados/", nome.plot,"curvas.jpg"), width = 1500, height = 800, quality = 100, pointsize = 20)
 

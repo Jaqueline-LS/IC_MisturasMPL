@@ -245,6 +245,8 @@ EMisUniPLM<-function(g,alfas,y,t,X,iter.max=100, n.start=50)
     theta<-list(b=beta,a=gamma,sd2=sigma2,p=p)
 
     theta0<-theta
+    
+    mu0<-mu
 
     cont<-cont+1
 
@@ -593,7 +595,7 @@ verificarGeração<-function(amostra, arg.grupos, tipo)
   # }
 }
 
-VerificarEstimacao<-function(amostra, arg.grupos, theta, tipo)
+VerificarEstimacao<-function(amostra, arg.grupos, theta)
 {
   
   N<-theta$N
@@ -643,57 +645,55 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta, tipo)
   
   
   
-  # #--------Plot da variável t pela y menos a parte linear-----------------
-  # # ----------------Ou plot da X menos a curva e as demais lineares-------
-  # # Residuo não paramétrico
-  # g.i<-vector("list",g)
-  # for(i in 1:g)
+  #--------Plot da variável t pela y menos a parte linear-----------------
+  # ----------------Ou plot da X menos a curva e as demais lineares-------
+  # Residuo não paramétrico
+  g.i<-vector("list",g)
+  for(i in 1:g)
+  {
+    g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
+  }
+
+  matrizX<-lapply(g.i,FUN=function(x)X[x,]) # Pega as observações que pertecem ao grupo
+  X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
+
+  beta.grand<-unlist(betas) # X%*%beta.chapeu
+  partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
+
+  matrizN<-lapply(g.i,FUN=function(x)N[x,]) # Pega as observações que pertecem ao grupo
+  N.grand<-as.matrix(bdiag(matrizN)) # matriz bloco diagonal
+  a.grand<-unlist(gamma)
+  curva<-N.grand%*%a.grand # Efeito das variáveis lineares em Y
+
+  ordem<-unlist(g.i) #indice em que as observações estão em X.g e N.g
+
+  # for (i in 2:p) # y-n_i*gamma vs. x
   # {
-  #   g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
+  #   plot(amostra$X[ordem,i],amostra$y[ordem]-curva, cex=0.5,col=cores[grupo[ordem]])
+  #   abline(a=b[[1]][1],b=b[[1]][i], lwd=3)
+  #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
+  #   abline(a=4,b=4, lwd=3, lty=2)
+  #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
   # }
-  # 
-  # matrizX<-lapply(g.i,FUN=function(x)X[x,]) # Pega as observações que pertecem ao grupo
-  # X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
-  # 
-  # beta.grand<-unlist(beta) # X%*%beta.chapeu
-  # partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
-  # 
-  # matrizN<-lapply(g.i,FUN=function(x)N[x,]) # Pega as observações que pertecem ao grupo
-  # N.grand<-as.matrix(bdiag(matrizN)) # matriz bloco diagonal
-  # a.grand<-unlist(gamma)
-  # curva<-N.grand%*%a.grand # Efeito das variáveis lineares em Y
-  # 
-  # ordem<-unlist(g.i) #indice em que as observações estão em X.g e N.g
-  # 
-  # # for (i in 2:p) # y-n_i*gamma vs. x
-  # # {
-  # #   plot(amostra$X[ordem,i],amostra$y[ordem]-curva, cex=0.5,col=cores[grupo[ordem]])
-  # #   abline(a=b[[1]][1],b=b[[1]][i], lwd=3)
-  # #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
-  # #   abline(a=4,b=4, lwd=3, lty=2)
-  # #   abline(a=b[[2]][1],b=b[[2]][i], lwd=3)
-  # # }
-  # # 
-  # 
-  # 
-  # plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
-  # for(i in 1:g)
-  # {
-  #   y_hat<-as.numeric(N%*%gamma[[i]])
-  #   dados<-data.frame(t,y_hat)
-  #   dados<-dados[order(dados$t, decreasing=FALSE),]
-  #   lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
-  #   
-  #   c[[i]]<-get(arg.grupos[[i]]$curva$f)
-  #   d<-arg.grupos[[i]]$curva$d
-  #   a<-arg.grupos[[i]]$curva$a
-  #   b<-arg.grupos[[i]]$curva$b
-  #   curve(c[[i]](x,d),a,b,add=T, lwd=3, lty=2)
-  #   
-  # }
-  # legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
-  # 
-  # 
+  #
+
+
+  plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
+  for(i in 1:g)
+  {
+    y_hat<-as.numeric(N%*%gamma[[i]])
+    dados<-data.frame(t,y_hat)
+    dados<-dados[order(dados$t, decreasing=FALSE),]
+    lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
+
+    curva<-get(arg.grupos[[i]]$curva$f)
+    d<-arg.grupos[[i]]$curva$d
+    a<-arg.grupos[[i]]$curva$a
+    b<-arg.grupos[[i]]$curva$b
+    curve(curva(x,d),a,b,add=T, lwd=3, lty=2)
+
+  }
+  legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
   
 }
 
