@@ -28,7 +28,7 @@ l<-lapply(1:g,FUN=function(j)lapply(seq_along(sizes),FUN=recupera.sigmas,j))
 for(j in 1:g)
 {
   l.j<-l[[j]]
-  boxplot(l.j,boxwex=0.2,main=titulo[j], pch=1,at=c(1,1.25,1.50,1.75), col=cores,xaxt="n", ylim=c(min(unlist(l.j)),max(unlist(l.j))))
+  boxplot(l.j,boxwex=0.2,main=titulo[j], pch=1,at=c(1,1.25,1.50,1.75,2), col=cores,xaxt="n", ylim=c(min(unlist(l.j)),max(unlist(l.j))))
   abline(h=sigma2.verd[j], lty=2, lwd=2)
   if(j==1)legend("topright",legend = paste0("n = ",sizes), col=cores, bty="n", fill=cores, cex=0.8)
 }
@@ -42,7 +42,7 @@ l2<-lapply(1:(g-1),FUN=function(j)lapply(seq_along(sizes),FUN=recupera.proporcoe
 for(j in 1:(g-1))
 {
   l.j<-l2[[j]]
-  boxplot(l.j,boxwex=0.2,main=titulo[j], pch=1,at=c(1,1.25,1.50,1.75), col=cores,xaxt="n", ylim=c(min(unlist(l.j)),max(unlist(l.j))))
+  boxplot(l.j,boxwex=0.2,main=titulo[j], pch=1,at=c(1,1.25,1.50,1.75,2), col=cores,xaxt="n", ylim=c(min(unlist(l.j)),max(unlist(l.j))))
   abline(h=pii[j], lty=2, lwd=2)
   #legend("topright",legend = paste0("n = ",sizes), col=cores, bty="n", fill=cores, cex=0.5)
 }
@@ -74,7 +74,7 @@ for(x in 1:3)
   for(j in 1:g)
   {
     l.p<-l3[[j]]
-    boxplot(l.p,boxwex=0.2,main=titulo[((j-1)*3)+x], pch=1,at=c(1,1.25,1.50,1.75), col=cores,xaxt="n", ylim=c(min(unlist(l.p)),max(unlist(l.p))))
+    boxplot(l.p,boxwex=0.2,main=titulo[((j-1)*3)+x], pch=1,at=c(1,1.25,1.50,1.75,2), col=cores,xaxt="n", ylim=c(min(unlist(l.p)),max(unlist(l.p))))
     abline(h=beta.verd[[j]][x], lty=2, lwd=2)
     if(x==1 && j==1) legend("topright",legend = paste0("n = ",sizes), col=cores, bty="n", fill=cores, cex=0.8)
   }

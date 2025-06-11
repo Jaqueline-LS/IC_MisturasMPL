@@ -555,19 +555,19 @@ verificarGeração<-function(amostra, arg.grupos, tipo)
   p<-ncol(X)
   
   
-  hist(y,freq=F, breaks=15, main=tipo)
+  hist(y,freq=F,breaks=10, main=tipo)
   
-  grupo<- apply(amostra$clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
-  
-  #plot(amostra$t, amostra$y, pch=19, cex=0.5,col=cores[grupo])
+  # grupo<- apply(amostra$clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
   # 
-  # for (i in 1:p)
+  # plot(amostra$t, amostra$y, pch=19, cex=0.5,col=cores[grupo])
+  # 
+  # for (i in 2:p)
   # {
-  #   plot(amostra$X[,2],amostra$y, cex=0.5,col=cores[grupo])
+  #   plot(amostra$X[,i],amostra$y, cex=0.5,col=cores[grupo], xlab=paste0("x_",i))
   # }
   # 
-  # apply(amostra$clu,1, mean) # proporções geradas 
-  
+  # apply(amostra$clu,1, mean) # proporções geradas
+  # 
   # #--------Plot da variável t pela y menos a parte linear-------
   # g.i<-vector("list",g)
   # 
@@ -595,7 +595,7 @@ verificarGeração<-function(amostra, arg.grupos, tipo)
   # }
 }
 
-VerificarEstimacao<-function(amostra, arg.grupos, theta)
+VerificarEstimacao<-function(amostra, arg.grupos, theta, tipo)
 {
   
   N<-theta$N
@@ -615,17 +615,17 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta)
   
   for (i in 2:p) # y vs. x
   {
-    plot(amostra$X[,i],amostra$y, cex=0.5,col=cores[grupo],
-         main=paste0("y vs. x - ",tipo),ylab="y", xlab="x_i")
-    abline(a=betas[[1]][1],b=betas[[1]][i], lwd=2, lty=2)
-    abline(a=betas[[2]][1],b=betas[[2]][i], lwd=2, lty=2)
-    abline(a=beta.verd[[1]][1],b=beta.verd[[1]][i], lwd=3)
-    abline(a=beta.verd[[2]][1],b=beta.verd[[2]][i], lwd=3)
-    legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3), cex=0.7)
+    plot(amostra$X[,i],amostra$y,pch =c(17,15)[grupo],col=cores[grupo],
+         main=paste0("y vs. x - ",tipo),ylab="y", xlab=paste0("x_",i))
+    abline(a=betas[[1]][1],b=betas[[1]][i], lwd=3, lty=2)
+    abline(a=betas[[2]][1],b=betas[[2]][i], lwd=3, lty=2 )
+    abline(a=beta.verd[[1]][1],b=beta.verd[[1]][i], lwd=3, col=cores[1])
+    abline(a=beta.verd[[2]][1],b=beta.verd[[2]][i], lwd=3, col=cores[2])
+    if(i==2)legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3), cex=0.8, bty="n")
   }
   
   
-  plot(amostra$t, amostra$y, pch=19, cex=0.5,col=cores[grupo], 
+  plot(amostra$t, amostra$y,  pch = c(17,15)[grupo] ,col=cores[grupo], 
        main=paste0("y vs. t - ",tipo))
   for(i in 1:g)
   {
@@ -641,31 +641,30 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta)
     curve(curva(x,d),a,b,add=T, lwd=3, lty=2)
     
   }
-  legend("topright",legend = c("verdadeira","estimada"),lty = c(2,1), lwd = c(2,3), cex=0.4)
+
   
   
-  
-  #--------Plot da variável t pela y menos a parte linear-----------------
-  # ----------------Ou plot da X menos a curva e as demais lineares-------
-  # Residuo não paramétrico
-  g.i<-vector("list",g)
-  for(i in 1:g)
-  {
-    g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
-  }
-
-  matrizX<-lapply(g.i,FUN=function(x)X[x,]) # Pega as observações que pertecem ao grupo
-  X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
-
-  beta.grand<-unlist(betas) # X%*%beta.chapeu
-  partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
-
-  matrizN<-lapply(g.i,FUN=function(x)N[x,]) # Pega as observações que pertecem ao grupo
-  N.grand<-as.matrix(bdiag(matrizN)) # matriz bloco diagonal
-  a.grand<-unlist(gamma)
-  curva<-N.grand%*%a.grand # Efeito das variáveis lineares em Y
-
-  ordem<-unlist(g.i) #indice em que as observações estão em X.g e N.g
+  # #--------Plot da variável t pela y menos a parte linear-----------------
+  # # ----------------Ou plot da X menos a curva e as demais lineares-------
+  # # Residuo não paramétrico
+  # g.i<-vector("list",g)
+  # for(i in 1:g)
+  # {
+  #   g.i[[i]]<-which(as.logical(amostra$clu[i,])) # indice das obs. do grupo i
+  # }
+  # 
+  # matrizX<-lapply(g.i,FUN=function(x)X[x,]) # Pega as observações que pertecem ao grupo
+  # X.grand<-as.matrix(bdiag(matrizX)) # matriz bloco diagonal
+  # 
+  # beta.grand<-unlist(betas) # X%*%beta.chapeu
+  # partelin<-X.grand%*%beta.grand # Efeito das variáveis lineares em Y
+  # 
+  # matrizN<-lapply(g.i,FUN=function(x)N[x,]) # Pega as observações que pertecem ao grupo
+  # N.grand<-as.matrix(bdiag(matrizN)) # matriz bloco diagonal
+  # a.grand<-unlist(gamma)
+  # curva<-N.grand%*%a.grand # Efeito das variáveis lineares em Y
+  # 
+  # ordem<-unlist(g.i) #indice em que as observações estão em X.g e N.g
 
   # for (i in 2:p) # y-n_i*gamma vs. x
   # {
@@ -678,23 +677,23 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta)
   #
 
 
-  plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
-  for(i in 1:g)
-  {
-    y_hat<-as.numeric(N%*%gamma[[i]])
-    dados<-data.frame(t,y_hat)
-    dados<-dados[order(dados$t, decreasing=FALSE),]
-    lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
-
-    curva<-get(arg.grupos[[i]]$curva$f)
-    d<-arg.grupos[[i]]$curva$d
-    a<-arg.grupos[[i]]$curva$a
-    b<-arg.grupos[[i]]$curva$b
-    curve(curva(x,d),a,b,add=T, lwd=3, lty=2)
-
-  }
-  legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
-  
+  # plot(amostra$t[ordem], amostra$y[ordem]-partelin, pch=19, cex=0.5,col=cores[grupo[ordem]])
+  # for(i in 1:g)
+  # {
+  #   y_hat<-as.numeric(N%*%gamma[[i]])
+  #   dados<-data.frame(t,y_hat)
+  #   dados<-dados[order(dados$t, decreasing=FALSE),]
+  #   lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
+  # 
+  #   curva<-get(arg.grupos[[i]]$curva$f)
+  #   d<-arg.grupos[[i]]$curva$d
+  #   a<-arg.grupos[[i]]$curva$a
+  #   b<-arg.grupos[[i]]$curva$b
+  #   curve(curva(x,d),a,b,add=T, lwd=3, lty=2)
+  # 
+  # }
+  # legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3))
+  # 
 }
 
 

@@ -3,71 +3,100 @@ library("Matrix")
 library("mgcv")
 library("dplyr")
 library("kableExtra")
+library("scatterplot3d") 
 source("funcoes/funcoes.R")
 source("funcoes/funcoesMisturas.R")
 source("funcoes/GerarAmostras_geral.R")
-
-cores<-c("#BAF3DE","#FF9B95","#C9E69E","#FFC29A")
-#cores<-c("#1d91c0","#ff5858")
-
+cores<-c("#c2a5cf","#BAF3DE","#C9E69E","#FF9B95","#FFC29A")
 par<-par(pch=19)
 
 
 M<-500
 g<-2
 
+# #Cenario 2
+pii<-c(0.35, 0.65)
+
+#beta.verd<-list(c(3,-1,6),c(8,1,-5)) 
+beta.verd<-list(c(8,1,-5),c(3,-1,6))
 
 
-#Cenario 3.1
-# pii<-c(0.47, 0.53)
-# beta.verd<-list(c(4,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c2.2_2_"
-# nome.plot<-"c2.2_2_"
+sigma2.verd<-list(2,4)
+
+nome.amostra<-"Amostras.corrigidas/c3_"
+nome.plot<-"c3_"
 
 
-#Cenario 3.2
-pii<-c(0.35,0.65)
-
-beta.verd<-list(c(4,4,6),c(2,3,-5))
-nome.amostra<-"Amostras/c3.2_2_"
-nome.plot<-"c3.2_2_"
-
-
-#------------------------------
-sigma2.verd<-list(1,1)
-
-
-arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2.verd[[1]],intercepto=T),
-                 g2=list(beta=beta.verd[[2]],curva=list(f="c2",a=-1,b=1,d=4),sigma2=sigma2.verd[[2]],intercepto=T),
+arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=1),sigma2=sigma2.verd[[1]],intercepto=T),
+                 g2=list(beta=beta.verd[[2]],curva=list(f="c1",a=-1,b=1,d=-2),sigma2=sigma2.verd[[2]],intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
 
-# Para gerar uma amostra de teste com o agrupamento do k-mean
 
-n=300
+
+n=1000
 alfas<-c(0.1,0.1)
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
-theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
+theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
 
 # Para acessar os valores estimados
-theta$theta$b # Para acessar os betas
+theta$theta
 
-theta$z
-#------------------------------------------------------------------
+verificarGeração(amostra, arg.grupos, tipo="Cenário 3")
 
-#----------------------- Exemplo de estimação pela função com o SVM
-amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
-theta<-try(EMisUniPLM.SVM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X, clu=amostra$clu),TRUE)
+y=amostra$y
+t=amostra$t
+X=amostra$X
+grupo<- apply(amostra$clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
 
-theta$acuracia # Acuracia do k-means
-
-theta$acuracia2 # Acuracia do SVM
+k=3
 
 
+par(mfrow=c(1,3), mar=c(2,2,1,1))
 
-#---------------------------------------------------
+s3d <- scatterplot3d(z=y,x=X[,3],y=X[,2], 
+                     xlab = "x3",
+                     ylab = "x2",
+                     type = "p", 
+                     color = cores[grupo],
+                     angle = 55, scale.y = 0.7, 
+                     pch = c(17,15)[grupo], cex.symbols = 1.3,
+                     main = paste0("Gráfico de dispersão 3D - C",k) )
+s3d$plane3d(beta.verd[[1]][1],x.coef = beta.verd[[1]][3], y.coef = beta.verd[[1]][2], col=cores[1], lwd=2)
+
+s3d$plane3d(beta.verd[[2]][1],x.coef = beta.verd[[2]][3], y.coef = beta.verd[[2]][2], col=cores[2], lwd=2)
+
+legend("topright", legend = c("Grupo 1","Grupo 2"), fill = cores[1:2], cex=0.8)
 
 
-# Replicações------------------------------------------------
+s3d <- scatterplot3d(z=y,x=X[,3],y=t, 
+                     xlab = "x3",
+                     ylab = "t",
+                     type = "p", 
+                     color = cores[grupo],
+                     angle = 55, scale.y = 0.7, 
+                     pch = c(17,15)[grupo], cex.symbols = 1.3,
+                     main = paste0("Gráfico de dispersão 3D - C",k) )
+s3d$plane3d(mean(y),x.coef =0, y.coef = 0, lwd=2)
+
+
+
+s3d <- scatterplot3d(z=y,x=X[,2],y=t, 
+                     xlab = "x2",
+                     ylab = "t",
+                     type = "p", 
+                     color = cores[grupo],
+                     angle = 55, scale.y = 0.7, 
+                     pch = c(17,15)[grupo], cex.symbols = 1.3,
+                     main = paste0("Gráfico de dispersão 3D - C",k) )
+s3d$plane3d(mean(y),x.coef =0, y.coef = 0, lwd=2)
+
+VerificarEstimacao(amostra, arg.grupos, theta, tipo="Cenário 1")
+
+
+
+
+
+# -------------------------------Replicações------------------------------------------------
 alfas<-c(0.1,0.1)
 sizes<-c(300,500,1000,2000)
 

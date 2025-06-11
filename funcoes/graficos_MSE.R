@@ -63,7 +63,7 @@ ASE.n<-function(j)
     aux.g.t.hat<-function(x)
     {
       N<-amostras[[x]][[2]]$N 
-      return((N%*%gammas1[,x] - curva.f(amostras[[x]]$t,d=d))^2)
+      return((N%*%gammas1[,x] - curva.f(amostras[[x]]$amostra$t,d=d))^2)
     }
     
     g.t.hat<-sapply(1:500,FUN=aux.g.t.hat)
@@ -83,7 +83,7 @@ par(mfrow=c(1,3), mar=c(3,2,2,1))
 #------------- Grafico do ASE das curvas----------------------------
 x<-seq_along(sizes)
 titulo<-c(expression(paste("Gráfico do ASE das curvas")))
-plot(x, colMeans(ASE.j[[1]]), type = "b", pch=19, col=cores[1], ylim=c(0,1), 
+plot(x, colMeans(ASE.j[[1]]), type = "b", pch=19, col=cores[1], ylim=c(0,max(unlist(ASE.j))), 
 ylab="ASE", xlab = "", xaxt = "n",
 main=titulo, lwd=2)
 axis(1, at = x, labels = paste0("n = ",sizes)) # Personaliza o eixo X com intervalos de 3
