@@ -23,23 +23,12 @@ g<-2
 # Define os parametros do cenario
 # # Cenario 1
 pii<-c(0.35, 0.65)
-# beta.verd<-list(c(8,4,6),c(2,3,-5))
 beta.verd<-list(c(8,4,6),c(-2,-3,-5))
 
-# Se quiser rodar as funções já programadas para gerar as réplicas e os gráficos
-# Pode dar um nome para as amostras, aqui elas serão salvas com os nome c1_2_300, c1_2_500... na pasta Amostras
+
 nome.amostra<-"Amostras.corrigidas/c1"
 nome.plot<-"c1_"
 
-
-# # Cenario 1.1
-# pii<-c(0.47, 0.53)
-# beta.verd<-list(c(8,4,6),c(2,3,-5))
-# nome.amostra<-"Amostras/c1.1_2_"
-# nome.plot<-"c1.1_2_"
-
-
-#sigma2.verd<-list(2,1)
 
 sigma2.verd<-list(0.2,0.1)
 
@@ -51,15 +40,14 @@ arg.grupos<-list(g1=list(beta=beta.verd[[1]],curva=list(f="c1",a=-1,b=1,d=1),sig
 
 # Para gerar uma amostra de teste com o agrupamento do k-means
 
-n=100
+n=500
 alfas<-c(0.1,0.1)
 amostra<-rMisUniPLM(n, pii, p=length(beta.verd[[1]]), arg=arg.grupos)
 theta<-try(EMisUniPLM(g=2,alfas=alfas,y=amostra$y, t=amostra$t, X=amostra$X),TRUE)
 
 # Para acessar os valores estimados
-theta$theta$b # Para acessar os betas
+theta$theta
 
-theta$z
 verificarGeração(amostra, arg.grupos, tipo="Cenário 1")
 
 y=amostra$y
@@ -68,6 +56,8 @@ X=amostra$X
 grupo<- apply(amostra$clu,2,FUN=function(x)which(as.logical(x))) # numero do grupo de cada observação
 
 k=1
+
+jpeg(file=paste0("Resultados/c",k,"_graficos3d.jpg"), width = 1600, height = 800, quality = 100, pointsize = 30)
 
 
 par(mfrow=c(1,3), mar=c(2,2,1,1))
@@ -109,8 +99,16 @@ s3d <- scatterplot3d(z=y,x=X[,2],y=t,
                      main = paste0("Gráfico de dispersão 3D - C",k) )
 s3d$plane3d(mean(y),x.coef =0, y.coef = 0, lwd=2)
 
+s3d
+
+dev.off()
+
+jpeg(file=paste0("Resultados/c",k,"_graficos.jpg"), width = 1600, height = 800, quality = 100, pointsize = 30)
+
+par(mfrow=c(1,3), mar=c(2,2,1,1))
 VerificarEstimacao(amostra, arg.grupos, theta, tipo="Cenário 1")
 
+dev.off()
 
 
 

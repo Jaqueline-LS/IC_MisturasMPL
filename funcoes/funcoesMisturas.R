@@ -617,10 +617,11 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta, tipo)
   {
     plot(amostra$X[,i],amostra$y,pch =c(17,15)[grupo],col=cores[grupo],
          main=paste0("y vs. x - ",tipo),ylab="y", xlab=paste0("x_",i))
-    abline(a=betas[[1]][1],b=betas[[1]][i], lwd=3, lty=2)
-    abline(a=betas[[2]][1],b=betas[[2]][i], lwd=3, lty=2 )
     abline(a=beta.verd[[1]][1],b=beta.verd[[1]][i], lwd=3, col=cores[1])
     abline(a=beta.verd[[2]][1],b=beta.verd[[2]][i], lwd=3, col=cores[2])
+    abline(a=betas[[1]][1],b=betas[[1]][i], lwd=3, lty=2)
+    abline(a=betas[[2]][1],b=betas[[2]][i], lwd=3, lty=2 )
+    
     if(i==2)legend("topright",legend = c("estimada","verdadeira"),lty = c(2,1), lwd = c(2,3), cex=0.8, bty="n")
   }
   
@@ -629,16 +630,19 @@ VerificarEstimacao<-function(amostra, arg.grupos, theta, tipo)
        main=paste0("y vs. t - ",tipo))
   for(i in 1:g)
   {
-    y_hat<-as.numeric(N%*%gamma[[i]])
-    dados<-data.frame(t,y_hat)
-    dados<-dados[order(dados$t, decreasing=FALSE),]
-    lines(dados$t,dados$y_hat, col=cores[i], lwd=3)
     
     curva<-get(arg.grupos[[i]]$curva$f)
     d<-arg.grupos[[i]]$curva$d
     a<-arg.grupos[[i]]$curva$a
     b<-arg.grupos[[i]]$curva$b
-    curve(curva(x,d),a,b,add=T, lwd=3, lty=2)
+    curve(curva(x,d),a,b,add=T, lwd=3, col=cores[i])
+    
+    y_hat<-as.numeric(N%*%gamma[[i]])
+    dados<-data.frame(t,y_hat)
+    dados<-dados[order(dados$t, decreasing=FALSE),]
+    lines(dados$t,dados$y_hat, lwd=3, lty=2)
+    
+    
     
   }
 
