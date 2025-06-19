@@ -168,3 +168,6 @@ tabela_latex
 # Para gerar os Box-plots
 
 source("funcoes/graficos_boxplots.R")
+
+source("avalia.classificacao.R")
+

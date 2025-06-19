@@ -300,7 +300,7 @@ M=20
 nome.amostra<-"comparacao.amostra1"
 
 #gera.amostras1(1000)
-tabela.n(1000)
+tabela.n(2000)
 
 arg.grupos<-list(g1=list(beta=beta.verd,curva=list(f="c1",a=-1,b=1,d=2),sigma2=sigma2,intercepto=T),
                  intervalos=list(c(0,1),c(0,1)))
